@@ -1,11 +1,42 @@
-# Controlled-Run Evidence Index
+# SaaSForge — Controlled Run Evidence
 
-This directory is reserved for sanitized run artifacts that can be published without exposing private source, credentials, or sensitive operational data.
+The following runs are the concrete basis for the strongest quantitative claims used in this portfolio repository.
 
-Expected evidence when available:
+## OpenManus — evidence sensitivity
 
-1. OpenManus discovery/evaluation transcript or screenshots.
-2. ContentFlow AI recipe + `RISKY @ 68%` feasibility output.
-3. KalamAI scaffold manifest/output summary establishing the documented 19-file / ~6,400-line run.
+| Condition | Result |
+|---|---|
+| Evaluation without README evidence | **22/100 · `no_go`** |
+| Same candidate after README retrieval | **73/100 · `go`** |
 
-Until those artifacts are copied here, the repository text should describe these as results supported by the private project record, not pretend that public raw evidence is already present.
+Interpretation: the same evaluation engine changed materially when the evidence available to it changed. This is evidence sensitivity, not a general accuracy benchmark.
+
+## ContentFlow AI — veto independence
+
+| Observation | Result |
+|---|---|
+| Tools assembled | 5 |
+| Compatibility | **82/100** |
+| Estimated margin | **89.2%** |
+| Feasibility | **RISKY @ 68% confidence** |
+| Main risks | competitor density + 15-week MVP timeline |
+
+Interpretation: attractive economics did not force a positive verdict. The separate Feasibility layer surfaced proposal-level risks that remained material.
+
+## KalamAI — scaffold generation
+
+| Observation | Result |
+|---|---|
+| Files | **19** |
+| Approx. lines | **~6,400** |
+| Generation time | **<5 min** |
+| Approx. AI cost | **~$0.50** |
+| Per-file success | **95% in this run** |
+
+Observed artifact categories included specialized backend services, Alembic migration, FastAPI router, React components, README and `ZCODE_TASK.md`.
+
+Interpretation: a substantial structured developer artifact was generated. The observation does not imply that the scaffold was a finished production product or that the figures generalize to every run.
+
+## Evidence discipline
+
+These are intentionally described as **controlled runs**. Future broad claims should require a defined benchmark dataset, repeated runs, measurement methodology and retained artifacts.
