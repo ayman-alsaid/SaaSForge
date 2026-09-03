@@ -1,148 +1,325 @@
-# SaaSForge — Engineering Evidence
+<div align="center">
 
-<p align="center">
-  <img src="https://img.shields.io/badge/SaaSForge-AI%20Product%20Infrastructure-5B78A6?style=flat-square" alt="SaaSForge" />
-  <img src="https://img.shields.io/badge/Pipeline-Discover%20→%20Evaluate%20→%20Recipe-6F86B5?style=flat-square" alt="Pipeline" />
-  <img src="https://img.shields.io/badge/Decision%20Gate-GO%20%7C%20NO__GO%20%7C%20RISKY-6F927F?style=flat-square" alt="Decision Gate" />
-  <img src="https://img.shields.io/badge/Evidence-Controlled%20Runs-8A78A8?style=flat-square" alt="Controlled Runs" />
-</p>
+# SaaSForge
 
-> **From product idea to feasibility-checked project scaffold.**
+### From raw opportunity to evidence-based decision — then to a working scaffold.
 
-SaaSForge is a five-stage AI research and product-generation pipeline:
+![Decision Pipeline](https://img.shields.io/badge/Discover_%E2%86%92_Evaluate_%E2%86%92_Recipe_%E2%86%92_Feasibility_%E2%86%92_Scaffold-5B6F8A?style=flat-square)
+![Evidence Anchored](https://img.shields.io/badge/Evidence--Anchored_Scoring-547C78?style=flat-square)
+![Hard Veto](https://img.shields.io/badge/Hard_Feasibility_Veto-75658A?style=flat-square)
+![Controlled Run](https://img.shields.io/badge/Controlled_Run-19_files_%C2%B7_~6%2C400_lines_%C2%B7_%3C5_min-667F91?style=flat-square)
+![Portfolio](https://img.shields.io/badge/Engineering_Evidence-6F7782?style=flat-square)
 
-**Discover → Evaluate → Recipe → Feasibility → Scaffold**
+**SaaSForge is not an “AI startup idea generator.”** It is a decision-support and product-engineering pipeline designed around a harder question:
 
-This public repository is an **Engineering Evidence / Technical Case Study** for the private production system. It documents architecture, engineering decisions, controlled-run results, operational boundaries, and known limitations without publishing proprietary production source.
+> **Can an AI system propose something compelling — and still be structurally capable of rejecting its own proposal?**
 
-## Current Status
+[Live Product](https://saasforge.agentcraft.info) · [Architecture](docs/ARCHITECTURE.md) · [Technical Case Study](docs/CASE_STUDY.md) · [Verification](docs/TESTING_AND_VERIFICATION.md) · [Limitations](docs/LIMITATIONS.md)
 
-**DEPLOYED / Working system**, based on the project evidence supplied for portfolio preparation. Individual capabilities and numeric claims are classified separately below; deployment does not automatically validate every claim.
+</div>
 
-**Live product:** https://saasforge.agentcraft.info  
-**Portfolio:** https://agentcraft.info
+---
 
-## Engineering Thesis
+## Why this project exists
 
-Generating code is not the hard part of AI-assisted product creation. The harder problem is deciding **what deserves to be built**, combining compatible building blocks, rejecting weak economics or feasibility, and handing a developer a coherent starting point rather than disconnected snippets.
+Product discovery often combines several different judgments in one informal process: search for candidate technologies, decide which are credible, imagine how they could form a product, estimate commercial viability, and finally start building. The problem is not only that this takes time. The reasoning is often inconsistent, difficult to audit, and vulnerable to optimism once a promising narrative has formed.
 
-SaaSForge therefore puts an explicit feasibility gate before generation and isolates generation failures file-by-file.
-
-## Pipeline
+SaaSForge turns that process into an explicit five-stage system:
 
 ```text
-GitHub / HuggingFace
-        │
-        ▼
-   1. Discover
-        │
-        ▼
-   2. Evaluate
-        │
-        ▼
-     3. Recipe
-        │
-        ▼
-  4. Feasibility
-   GO / NO_GO / RISKY
-        │
-        ▼
-    5. Scaffold
- project files + ZCODE_TASK.md
+External corpus
+     │
+     ▼
+ DISCOVER ──► EVALUATE ──► RECIPE ──► FEASIBILITY ──► SCAFFOLD
+ GitHub/HF     evidence      assemble     independent      codebase
+ candidates    scoring       3–5 tools    veto layer       + handoff
 ```
 
-## Evidence Summary
+The engineering thesis is deliberately stronger than “use an LLM to generate ideas”:
 
-| Claim | Status | Evidence boundary |
+> **Proposal generation and proposal approval should not be the same decision.**
+
+The Recipe stage is rewarded for finding a coherent product. The Feasibility stage is designed to be skeptical of that product. Some constraints are weighted judgments; others are hard gates that a persuasive narrative cannot offset.
+
+---
+
+## The five-stage pipeline
+
+| Stage | Purpose | Engineering behavior |
 |---|---|---|
-| Five-stage Discover → Evaluate → Recipe → Feasibility → Scaffold pipeline exists | **IMPLEMENTED** | Supported by the supplied project architecture and API/operations documentation. |
-| Feasibility produces explicit `GO` / `NO_GO` / `RISKY` verdicts | **IMPLEMENTED** | Supported by project documentation and controlled-run examples. |
-| ContentFlow AI returned `RISKY` at 68% confidence | **VERIFIED IN A CONTROLLED RUN** | Reported in supplied run evidence; a single run, not a benchmark. |
-| KalamAI scaffold generated 19 files and ~6,400 lines in under 5 minutes at ~$0.50 AI cost | **VERIFIED IN A CONTROLLED RUN** | Reported for one controlled production run; not generalized performance. |
-| KalamAI generation had 95% per-file success | **VERIFIED IN A CONTROLLED RUN** | Applies to the documented run only. |
-| Generated scaffold is a complete production product | **NOT YET VALIDATED** | A generated scaffold is explicitly not treated as a completed product. |
-| Public evidence repository contains the production source | **NOT APPLICABLE** | Production source remains private by portfolio design. |
+| **1 · Discover** | Find reusable open-source building blocks | Searches GitHub and HuggingFace, captures metadata, categorizes, deduplicates, tracks freshness and trend signals |
+| **2 · Evaluate** | Decide whether an individual tool is commercially useful | 5 weighted dimensions: Market 30, Technical 25, Conversion 20, Differentiation 15, License 10 |
+| **3 · Recipe** | Assemble 3–5 candidates into one coherent product | Assigns pipeline roles, compatibility, commercial packaging, execution plan and MVP estimates |
+| **4 · Feasibility** | Challenge the assembled proposal | Separate judgment layer: market saturation, unit economics, build time and worst-case exposure; emits GO / NO_GO / RISKY |
+| **5 · Scaffold** | Turn an approved recipe into a developer starting point | Manifest-first generation, file-by-file isolation, ZIP packaging and `ZCODE_TASK.md` handoff |
 
-## Key Engineering Decisions
+Slow AI stages run through Celery/Redis. Credit-consuming actions are metered. Hard failures trigger refunds. Partial AI responses remain explicitly partial rather than being silently promoted to clean successes.
 
-### 1. Feasibility before generation
+---
 
-The system does not assume that a technically composable idea is commercially or operationally worth building. The feasibility layer evaluates technical risk, unit economics, market conditions, and implementation burden before generation.
+## What makes SaaSForge technically interesting
 
-### 2. Manifest-first scaffold generation
+### 1. A judge that is separate from the proposer
 
-Before generating files, SaaSForge designs the file manifest and responsibilities. Generation then proceeds file-by-file with project context and cross-file awareness.
+The most important architectural decision is the separation between **Recipe** and **Feasibility**.
 
-### 3. Per-file failure isolation
+A simpler design would ask one model call to assemble a product and then “also judge whether it is viable.” SaaSForge deliberately does not do that. The system that makes the proposal should not be trusted to grade its own work using the same optimistic reasoning that made the proposal coherent.
 
-A failed generation step does not abort the entire scaffold. The failed file is recorded and replaced by an explicit error placeholder while the remaining generation continues.
+Feasibility therefore runs as its own meta-layer. It evaluates:
 
-### 4. Developer handoff as a first-class artifact
+- market saturation and competitor density;
+- unit economics;
+- build-time exposure;
+- bounded worst-case risk;
+- explicit key risks and opportunities;
+- a final GO / NO_GO / RISKY verdict with confidence and advice.
 
-`ZCODE_TASK.md` captures what was generated, source-tool roles, remaining implementation work, priorities, protected template areas, and success criteria. The scaffold is treated as the beginning of implementation—not proof that implementation is finished.
+And one rule is intentionally non-negotiable:
 
-### 5. Cost-bearing work behind explicit gates
+```text
+margin < 20%  →  automatic NO_GO
+```
 
-Evaluation, recipe generation, feasibility, and scaffold generation are accounted for through a credit model, while heavy generation work is executed asynchronously.
+That condition is a **hard gate**, not merely a low score that strong performance elsewhere can compensate for.
+
+### 2. Evidence changes the verdict
+
+A controlled evaluation demonstrates why the scoring layer is described as evidence-anchored.
+
+The same OpenManus candidate was evaluated twice:
+
+| Input evidence | Result |
+|---|---:|
+| README unavailable | **22/100 · `no_go`** |
+| README fetched and included | **73/100 · `go`** |
+
+Same candidate. Same evaluation engine. Different available evidence. Different verdict.
+
+This does **not** establish general benchmark accuracy. It is a controlled demonstration that the engine's judgment responds materially to evidence instead of merely repeating an optimistic prior.
+
+### 3. Healthy economics do not guarantee approval
+
+A ContentFlow AI recipe assembled five tools with an **82/100 compatibility score** and an estimated **89.2% margin**. Yet the separate Feasibility layer returned:
+
+> **RISKY · 68% confidence**
+
+The reason was not unit economics. It was competitor density and a 15-week MVP timeline.
+
+That run matters because it demonstrates the intended independence of the judgment layer: a commercially attractive number did not force a positive verdict when other risks remained material.
+
+### 4. Scaffold generation produces an artifact, not another recommendation
+
+For an Arabic TTS recipe (KalamAI), one controlled run generated:
+
+- **19 files**;
+- approximately **6,400 lines**;
+- in **under 5 minutes**;
+- for approximately **$0.50 of AI cost**;
+- with **95% per-file success** in that run.
+
+The output included four specialized backend services, an Alembic migration with upgrade/downgrade paths, a five-endpoint FastAPI router, React components, a project README, and `ZCODE_TASK.md` for developer/AI-agent handoff.
+
+These numbers describe **one controlled run**, not a generalized performance benchmark. A generated scaffold is a developer starting point — not a claim that a production SaaS product was autonomously completed.
+
+---
+
+## Inside the engines
+
+### Discover — structured corpus acquisition
+
+Discovery searches GitHub and HuggingFace Spaces in parallel and persists identity, repository metadata, community signals, language, license, README content, freshness and source-specific metrics. Results are upserted by `(source, repo_id)` so repeated searches refresh evidence rather than duplicating entities.
+
+The engine also supports deterministic category assignment, star-velocity ranking, spike detection and watchlists. These are deliberately separated from LLM reasoning where deterministic logic is sufficient.
+
+### Evaluate — five-dimensional SaaS readiness
+
+Full evaluation produces structured analysis across:
+
+| Dimension | Weight | Questions |
+|---|---:|---|
+| Market | 30 | Is there demand, paid competition and willingness to pay? |
+| Technical | 25 | Is this a product, library or experiment? How maintainable and compatible is it? |
+| Conversion | 20 | What must be built around it? What are likely MVP/API/GPU costs? |
+| Differentiation | 15 | What paid value can exist beyond the free project? |
+| License | 10 | Can it be commercialized safely under the detected license? |
+
+Quick evaluation intentionally covers only the cheaper market + technical path; full evaluation runs asynchronously and returns recommendation, reasoning, strengths, weaknesses and structured per-dimension analysis.
+
+### Recipe — coherent assembly rather than a flat shortlist
+
+Recipe generation does not simply rank tools. It assigns selected candidates roles such as `core_engine`, `data_collection`, `processing`, `analysis`, `output` and `integration`, then constructs a product proposal with compatibility, execution phases, pricing, cost/user, margin and MVP timing.
+
+Candidate selection is deliberately metadata-driven before assembly rather than running expensive full evaluation across every discovered candidate. That saves significant cost and latency, but it is a real trade-off documented in [Limitations](docs/LIMITATIONS.md).
+
+### Feasibility — weighted checks plus hard gates
+
+```text
+                    RECIPE
+                      │
+        ┌─────────────┼─────────────┬──────────────┐
+        ▼             ▼             ▼              ▼
+     MARKET        ECONOMICS      BUILD         WORST CASE
+   saturation       margin         time          exposure
+        │             │             │              │
+        └─────────────┴──────┬──────┴──────────────┘
+                             ▼
+                  GO / NO_GO / RISKY
+                   + confidence + rationale
+```
+
+The distinction between **must-meet constraints** and **weighted judgment** is the core design idea. It prevents a strong narrative from “averaging away” a structurally unacceptable number.
+
+### Scaffold — manifest first, files second
+
+The generator first designs a complete manifest, then generates each product-specific file independently. File isolation means one generation failure is recorded and replaced with an explicit placeholder while the rest of the run continues. The backend and worker share a scaffold volume for ZIP generation and owner-only download.
+
+`ZCODE_TASK.md` turns generation into a handoff protocol: what exists, what remains, priorities, protected template areas and measurable success criteria.
+
+---
+
+## Reliability engineering around the LLM
+
+Every model-backed stage routes through a shared `AIClient` abstraction rather than embedding provider calls throughout the application.
+
+Key behaviors include:
+
+- three attempts per call;
+- stricter JSON-only retry behavior;
+- exponential backoff for 429/5xx responses;
+- structured repair/extraction as a final fallback;
+- explicit `partial` state when expected data is missing or repaired;
+- persisted `done_partial` rather than false clean success;
+- model selection through configuration rather than application rewrites.
+
+The important property is not the retry count. It is **honest degradation**: downstream code can distinguish “complete,” “partial,” and “failed.”
+
+---
+
+## Credits and concurrency
+
+The credit subsystem uses an **append-only ledger**: balance is derived from ledger entries rather than treated as an authoritative mutable number.
+
+Balance-sensitive operations use row-level locking (`SELECT ... FOR UPDATE`) to protect concurrent checks/refills from double-spend and double-refill races. Failure policy is explicit:
+
+- hard failure after retries → full refund;
+- partial but usable result → preserved and visibly marked, no automatic refund;
+- broker dispatch failure → job marked failed and credit refunded.
+
+This is a small subsystem, but it is representative of the broader engineering philosophy: state transitions should remain auditable even when external AI infrastructure behaves imperfectly.
+
+---
 
 ## Architecture
 
 ```text
-Frontend
-   │
-   ▼
-FastAPI API ───────────────► PostgreSQL + pgvector
-   │
-   ├──────────────► Redis / Celery workers
-   │                       │
-   │                       ▼
-   │                  AIClient layer
-   │                       │
-   ▼                       ▼
-Discovery sources      OpenRouter models
-GitHub / HuggingFace
+┌─────────────────────────────┐
+│ Next.js 15 / TypeScript UI  │
+└──────────────┬──────────────┘
+               │ HTTPS / JWT
+┌──────────────▼──────────────┐
+│ FastAPI application         │
+│ discovery · evaluation      │
+│ recipe · feasibility        │
+│ scaffold · credits          │
+└───────┬───────────┬─────────┘
+        │           │
+        ▼           ▼
+ PostgreSQL      Redis
+ + pgvector      broker
+        ▲           │
+        │           ▼
+        │       Celery workers
+        │           │
+        └───────────┼───────────────┐
+                    ▼               ▼
+                AIClient       External corpus
+                OpenRouter     GitHub / HF
 ```
 
-Operational documentation supplied for the project describes Dockerized database, Redis, backend, worker, and frontend services with reverse-proxy/TLS infrastructure.
-
-## Verification Notes
-
-The strongest supplied evidence is a set of controlled end-to-end runs, including:
-
-- OpenManus discovery/evaluation behavior;
-- ContentFlow AI recipe + feasibility verdict;
-- KalamAI scaffold generation.
-
-These results are intentionally labeled **VERIFIED IN A CONTROLLED RUN**, not **MEASURED benchmarks**, because the supplied evidence establishes specific runs rather than a repeatable performance study across workloads.
-
-## Security and Ownership Boundaries
-
-The production implementation is private. Public evidence should not expose credentials, environment values, proprietary source, or sensitive infrastructure details. Owner-only access is documented for evaluation, recipe, and scaffold artifacts in the production system.
-
-Legacy repository links, identity, and email addresses from older project documentation are not carried into this evidence repository.
-
-## Known Limitations
-
-- A scaffold is not equivalent to a finished or production-ready application.
-- Single controlled-run generation time/cost/success values must not be generalized into benchmarks.
-- Template-inherited capabilities should be distinguished from SaaSForge-specific implementation when detailed evidence is published.
-- Claims about backups, monitoring, restore behavior, billing, and other inherited infrastructure should be independently re-verified before being elevated as SaaSForge-specific evidence.
-- Any current production metrics should be re-measured before publication if they are presented as current measurements.
-
-## Repository Map
-
-- [`docs/CASE_STUDY.md`](docs/CASE_STUDY.md) — engineering narrative and tradeoffs.
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — system boundaries and pipeline.
-- [`docs/TESTING_AND_VERIFICATION.md`](docs/TESTING_AND_VERIFICATION.md) — controlled-run evidence classification.
-- [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md) — known evidence and product boundaries.
-- [`evidence/controlled-runs/README.md`](evidence/controlled-runs/README.md) — controlled-run evidence index.
-- [`PORTFOLIO_NOTICE.md`](PORTFOLIO_NOTICE.md) — source and usage boundary.
-
-## Review Path
-
-**AgentCraft project page → Engineering Evidence repository → Architecture & decisions → Controlled-run evidence → Live product**
+See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for responsibilities, trust boundaries, asynchronous execution and data flow.
 
 ---
 
-**Ayman Alsaid** · Senior AI / Product Engineer  
-AgentCraft · https://agentcraft.info · contact@agentcraft.info
+## Verification map
+
+| Claim | Evidence status | Evidence |
+|---|---|---|
+| Five-stage pipeline implemented | **IMPLEMENTED** | System design and project documentation |
+| OpenManus evidence sensitivity | **VERIFIED IN A CONTROLLED RUN** | 22/100 without README → 73/100 with README |
+| ContentFlow independent feasibility judgment | **VERIFIED IN A CONTROLLED RUN** | 82 compatibility; 89.2% margin; RISKY @ 68% |
+| KalamAI scaffold output | **VERIFIED IN A CONTROLLED RUN** | 19 files; ~6,400 lines; <5 min; ~$0.50; 95% per-file success |
+| Generated scaffold = production-ready finished SaaS | **NOT CLAIMED** | Scaffold remains a starting artifact requiring review/integration |
+| Controlled-run figures generalize to every recipe | **NOT YET VALIDATED** | No broad benchmark dataset is claimed |
+
+The repository intentionally uses the strongest wording the evidence supports — not the strongest wording a product story would benefit from.
+
+---
+
+## Security and operational boundaries
+
+The documented system includes JWT access/refresh authentication, owner-scoped evaluations/recipes/scaffolds, private database/Redis networking, localhost-bound service ports behind a reverse proxy, split environment configuration, and secret exclusion from source control.
+
+The public repository does **not** publish the proprietary production implementation. It exists to make architecture, engineering decisions, verification and limitations reviewable without exposing private source or credentials.
+
+---
+
+## The architecture beyond SaaS ideation
+
+The deeper reusable pattern is:
+
+```text
+Discover → Score → Assemble → Veto → Generate
+```
+
+This can be useful wherever a system must screen a large corpus, build a coherent candidate proposal and then protect the final decision from persuasive-but-disqualifying inputs. The content research around SaaSForge explores structural parallels in VC screening, real-estate feasibility, R&D stage-gate reviews, M&A screening and grant allocation.
+
+That does **not** mean thresholds or domain rules transfer automatically. A margin threshold appropriate to SaaS evaluation is not a universal decision rule. What generalizes is the architecture: **weighted evidence plus domain-specific hard gates, with proposal and veto separated.**
+
+This distinction matters because “generalizable architecture” is an engineering claim; “interchangeable domains” would be an unjustified product claim.
+
+---
+
+## What I built vs. what I used
+
+The underlying LLM provides reasoning and generation. The engineering work is the system around that capability:
+
+- corpus discovery and evidence capture;
+- weighted evaluation schema;
+- role-based multi-tool assembly;
+- independent feasibility/veto architecture;
+- deterministic economic gates;
+- async orchestration and lifecycle states;
+- honest partial-result handling;
+- append-only credits and concurrency protection;
+- manifest-first scaffold generation;
+- per-file failure isolation;
+- developer handoff protocol.
+
+The contribution is not “an LLM can write code.” It is the architecture that decides **what deserves to be generated, what must be rejected, what evidence supports the decision, and how degradation is represented honestly.**
+
+---
+
+## Technology
+
+`Next.js 15` · `TypeScript` · `FastAPI` · `SQLAlchemy 2` · `PostgreSQL 16` · `pgvector` · `Alembic` · `Celery` · `Redis` · `OpenRouter` · `Docker Compose`
+
+---
+
+## Engineering evidence index
+
+- **[Technical Case Study](docs/CASE_STUDY.md)** — problem, design decisions, alternatives, trade-offs, verification, lessons and generalization.
+- **[Architecture](docs/ARCHITECTURE.md)** — topology, stage responsibilities, async flow, trust boundaries and state.
+- **[Testing & Verification](docs/TESTING_AND_VERIFICATION.md)** — controlled evidence and claim classification.
+- **[Controlled Runs](evidence/controlled-runs/README.md)** — the concrete runs used in public claims.
+- **[Limitations](docs/LIMITATIONS.md)** — what the current evidence does not establish.
+- **[Portfolio Notice](PORTFOLIO_NOTICE.md)** — public-review scope and private-source boundary.
+
+---
+
+## Review scope
+
+The production source code for SaaSForge is maintained privately and is not distributed through this repository. This repository is an **Engineering Evidence / Technical Case Study**: it is intended to give senior engineers, technical leaders and potential collaborators enough information to assess the architecture, decisions, verification discipline and product-engineering depth without publishing proprietary implementation details or credentials.
+
+**Built by Ayman Alsaid · AgentCraft**
+
+[agentcraft.info](https://agentcraft.info) · [contact@agentcraft.info](mailto:contact@agentcraft.info)
